@@ -35,10 +35,10 @@ get_info() {
 	read -rp "输入服务器名称（如 香港）:" name
 	read -rp "输入服务器代号（如 HK）:" code
 	read -rp "输入通信密钥（不限长度）:" sec
-	read -rp "输入监控页面端口（默认9008）：" port1
-	read -rp "输入FCGI监听端口（默认9007）：" port2
-	ss -tnlp | grep -q ":${port1:-9008} " && echo "端口 ${port1:-9008} 已被占用" && exit 1
-	ss -tnlp | grep -q ":${port2:-9007} " && echo "端口 ${port2:-9007} 已被占用" && exit 1
+	read -rp "输入监控页面端口（默认9898）：" port1
+	read -rp "输入FCGI监听端口（默认9899）：" port2
+	ss -tnlp | grep -q ":${port1:-9898} " && echo "端口 ${port1:-9898} 已被占用" && exit 1
+	ss -tnlp | grep -q ":${port2:-9899} " && echo "端口 ${port2:-9899} 已被占用" && exit 1
 }
 
 compile_smokeping() {
@@ -71,11 +71,11 @@ configure() {
 	wget $origin/systemd-fcgi -O /etc/systemd/system/spawn-fcgi.service
 	wget $origin/systemd-master -O /etc/systemd/system/smokeping-master.service
 	wget $origin/systemd-slave -O /etc/systemd/system/smokeping-slave.service
-	sed -i 's/port1/'${port1:-9008}'/g;s/port2/'${port2:-9007}'/g' $caddy_dir/Caddyfile /etc/systemd/system/smokeping-slave.service /etc/systemd/system/spawn-fcgi.service
+	sed -i 's/port1/'${port1:-9898}'/g;s/port2/'${port2:-9899}'/g' $caddy_dir/Caddyfile /etc/systemd/system/smokeping-slave.service /etc/systemd/system/spawn-fcgi.service
 	sed -i 's/SLAVE_CODE/'$code'/g' /usr/local/smokeping/etc/config /etc/systemd/system/smokeping-slave.service
 	systemctl daemon-reload
 	systemctl enable caddy-sp spawn-fcgi smokeping-master smokeping-slave
-	sed -i 's/some.url/'$ip':'${port1:-9008}'/g;s/SLAVE_NAME/'$name'/g' /usr/local/smokeping/etc/config
+	sed -i 's/some.url/'$ip':'${port1:-9898}'/g;s/SLAVE_NAME/'$name'/g' /usr/local/smokeping/etc/config
 	echo "$code:$sec" > /usr/local/smokeping/etc/smokeping_secrets.dist
 	echo "$sec" > /usr/local/smokeping/etc/secret
 	chmod 700 /usr/local/smokeping/etc/secret /usr/local/smokeping/etc/smokeping_secrets.dist
@@ -98,8 +98,8 @@ systemctl start caddy-sp spawn-fcgi smokeping-master smokeping-slave || error=1
 
 rm -rf /tmp/smokeping
 
-echo "安装完成，监控页面网址：http://$ip:${port1:-9008}/"
+echo "安装完成，监控页面网址：http://$ip:${port1:-9898}/"
 echo ""
 echo "注意："
-echo "如有必要请在防火墙放行 ${port1:-9008} 端口"
+echo "如有必要请在防火墙放行 ${port1:-9898} 端口"
 echo "请等待一会，监控数据不会立即更新"

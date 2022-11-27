@@ -4,7 +4,7 @@ After=network.service smokeping-master.service caddy-sp.service
 
 [Service]
 Type=forking
-Environment=MASTER=127.0.0.1
+Environment=MASTER=jp1.mrrockist.top
 Environment=CACHEDIR=/usr/local/smokeping/cache
 Environment=SECRET=/usr/local/smokeping/etc/secret
 Environment=NAME=SLAVE_CODE
